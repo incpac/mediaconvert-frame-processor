@@ -1,0 +1,28 @@
+resource "random_uuid" "suffix" {
+  keepers = {
+    for filename in fileset(var.source_dir, "**/*") :
+    filename => filemd5("${var.source_dir}/${filename}")
+  }
+}
+
+data "archive_file" "lambda_function" {
+  source_dir  = var.source_dir
+  output_path = "${path.module}/lambda-function-${var.function_name}-${random_uuid.suffix.result}.zip"
+  type        = "zip"
+}
+
+resource "aws_lambda_function" "lambda_function" {
+  function_name = var.function_name
+  role          = aws_iam_role.lambda_function.arn
+  filename      = data.archive_file.lambda_function.output_path
+  runtime       = var.runtime
+  handler       = var.handler
+  timeout       = var.timeout
+
+  dynamic "environment" {
+    for_each = var.environment_variables == null ? [] : [1]
+    content {
+      variables = var.environment_variables
+    }
+  }
+}
