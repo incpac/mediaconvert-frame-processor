@@ -44,8 +44,8 @@ module "mediaconvert_success_handler" {
   timeout       = 60 # This may need to be adjusted depending on max video length and framerate 
 
   environment_variables = {
-    "JOBS_TABLE"              = aws_dynamodb_table.jobs.name
-    "RAW_FRAMES_BUCKET"       = aws_s3_bucket.raw_frames.bucket
+    "JOBS_TABLE"        = aws_dynamodb_table.jobs.name
+    "RAW_FRAMES_BUCKET" = aws_s3_bucket.raw_frames.bucket
   }
 }
 

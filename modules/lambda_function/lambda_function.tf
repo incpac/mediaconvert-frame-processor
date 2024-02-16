@@ -14,10 +14,13 @@ data "archive_file" "lambda_function" {
 resource "aws_lambda_function" "lambda_function" {
   function_name = var.function_name
   role          = aws_iam_role.lambda_function.arn
-  filename      = data.archive_file.lambda_function.output_path
   runtime       = var.runtime
   handler       = var.handler
   timeout       = var.timeout
+  architectures = var.architectures
+
+  filename = data.archive_file.lambda_function.output_path
+  source_code_hash = filebase64sha256(data.archive_file.lambda_function.output_path)
 
   dynamic "environment" {
     for_each = var.environment_variables == null ? [] : [1]
